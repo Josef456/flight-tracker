@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Flask instance and database
+instance/
+*.db
+*.sqlite3
+
+# Environment
+.env
+
+# Editor and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Scratch
+scratch_*
+
+# Internal build notes and the assignment brief, not part of the deliverable
+plan.md
+*.pdf
