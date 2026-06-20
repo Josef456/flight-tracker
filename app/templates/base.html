@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Entebbe Flight Tracker{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Spectral:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}app{% endblock %}">
+{% include "_icons.html" %}
+{% from "_macros.html" import icon %}
+
+{% if current_user %}
+  {% set role = current_user.role %}
+  <div class="shell" id="shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-brand">
+        <a class="brand" href="{{ url_for('auth.index') }}">
+          <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" class="brand-mark">
+          <span class="brand-text">
+            <strong>Entebbe</strong>
+            <small>Flight Tracker</small>
+          </span>
+        </a>
+        <button class="side-collapse" id="sideCollapse" type="button" title="Collapse menu" aria-label="Collapse menu">
+          {{ icon('collapse') }}
+        </button>
+      </div>
+
+      <nav class="side-nav">
+        {% if role == 'traveler' %}
+          <a href="{{ url_for('traveler.dashboard') }}" class="{% block nav_dash %}{% endblock %}" data-tip="My declarations">{{ icon('file') }}<span>My declarations</span></a>
+          <a href="{{ url_for('traveler.declare') }}" class="{% block nav_declare %}{% endblock %}" data-tip="New declaration">{{ icon('plus') }}<span>New declaration</span></a>
+        {% elif role == 'inspector' %}
+          <a href="{{ url_for('inspector.queue') }}" class="{% block nav_queue %}{% endblock %}" data-tip="Audit queue">{{ icon('file') }}<span>Audit queue</span></a>
+          <a href="{{ url_for('inspector.arrivals') }}" class="{% block nav_arrivals %}{% endblock %}" data-tip="Arrivals map">{{ icon('map') }}<span>Arrivals map</span></a>
+        {% elif role == 'admin' %}
+          <div class="side-label"><span>Overview</span></div>
+          <a href="{{ url_for('admin.dashboard') }}" class="{% block nav_admin %}{% endblock %}" data-tip="Dashboard">{{ icon('grid') }}<span>Dashboard</span></a>
+          <a href="{{ url_for('inspector.arrivals') }}" class="{% block nav_arrivals2 %}{% endblock %}" data-tip="Arrivals map">{{ icon('map') }}<span>Arrivals map</span></a>
+          <div class="side-label"><span>Operations</span></div>
+          <a href="{{ url_for('inspector.queue') }}" class="{% block nav_admin_queue %}{% endblock %}" data-tip="Declarations">{{ icon('file') }}<span>Declarations</span></a>
+          <a href="{{ url_for('admin.flights') }}" class="{% block nav_flights %}{% endblock %}" data-tip="Flights">{{ icon('plane') }}<span>Flights</span></a>
+          <a href="{{ url_for('admin.users') }}" class="{% block nav_users %}{% endblock %}" data-tip="Users">{{ icon('users') }}<span>Users</span></a>
+        {% endif %}
+      </nav>
+
+      <div class="side-foot">
+        <div class="side-user">
+          <span class="avatar">{{ current_user.initials }}</span>
+          <span class="user-meta">
+            <span class="user-name">{{ current_user.full_name }}</span>
+            <span class="user-role">{{ role_label(current_user.role) }}</span>
+          </span>
+        </div>
+        <form method="post" action="{{ url_for('auth.logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="side-signout" title="Sign out">{{ icon('logout') }}<span>Sign out</span></button>
+        </form>
+      </div>
+    </aside>
+
+    <div class="scrim" id="scrim"></div>
+
+    <div class="content">
+      <header class="appbar">
+        <button class="appbar-toggle" id="sideToggle" type="button" aria-label="Toggle menu">{{ icon('menu') }}</button>
+        <div class="appbar-title">{% block appbar_title %}{% endblock %}</div>
+        <div class="appbar-spacer"></div>
+        <div class="appbar-user">
+          <span class="avatar avatar-sm">{{ current_user.initials }}</span>
+          <span class="appbar-name">{{ current_user.full_name }}</span>
+        </div>
+      </header>
+
+      <main class="page">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-stack">
+              {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+
+        <footer class="sitefoot">
+          <span>Entebbe Flight Tracker</span>
+          <span>Uganda Customs, demonstration system for coursework</span>
+        </footer>
+      </main>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% else %}
+  <main class="{% block main_class %}page{% endblock %}">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="auth-flash">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content_anon %}{% endblock %}
+  </main>
+{% endif %}
+{% block scripts %}{% endblock %}
+</body>
+</html>

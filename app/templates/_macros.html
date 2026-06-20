@@ -1,0 +1,23 @@
+{% macro status_badge(status) -%}
+  <span class="badge b-{{ status }}">{{ status|capitalize }}</span>
+{%- endmacro %}
+
+{% macro risk_badge(risk) -%}
+  <span class="badge b-{{ risk }}">{{ risk|capitalize }} risk</span>
+{%- endmacro %}
+
+{% macro money(value, currency) -%}
+  <span class="num">{{ currency }} {{ '{:,.2f}'.format(value|float) }}</span>
+{%- endmacro %}
+
+{% macro icon(name, cls='ic') -%}
+  <svg class="{{ cls }}" aria-hidden="true"><use href="#i-{{ name }}"></use></svg>
+{%- endmacro %}
+
+{% macro field(f, placeholder='') -%}
+  <div class="field">
+    {{ f.label }}
+    {{ f(placeholder=placeholder) }}
+    {% if f.errors %}{% for e in f.errors %}<div class="err">{{ e }}</div>{% endfor %}{% endif %}
+  </div>
+{%- endmacro %}
