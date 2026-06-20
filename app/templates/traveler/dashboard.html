@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge, risk_badge, money, icon %}
+{% block nav_dash %}active{% endblock %}
+{% block appbar_title %}My declarations{% endblock %}
+{% block title %}My declarations - Entebbe Flight Tracker{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">{{ icon('file', 'ic-sm') }} Traveler</div>
+    <h1>My declarations</h1>
+    <p>Declarations you have filed for arrivals at Entebbe.</p>
+  </div>
+  <a href="{{ url_for('traveler.declare') }}" class="btn btn-primary">{{ icon('plus') }} New declaration</a>
+</div>
+
+{% if declarations %}
+<div class="card">
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr><th>Reference</th><th>Flight</th><th>Declared value</th><th>Risk</th><th>Status</th><th>Filed</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for d in declarations %}
+        <tr class="clickable" data-href="{{ url_for('traveler.view', reference=d.reference) }}">
+          <td><a class="ref" href="{{ url_for('traveler.view', reference=d.reference) }}">{{ d.reference }}</a></td>
+          <td>{{ d.flight.flight_number }} <span class="muted">{{ d.flight.origin }}</span></td>
+          <td>{{ money(d.total_value, d.currency) }}</td>
+          <td>{{ risk_badge(d.risk_level) }}</td>
+          <td>{{ status_badge(d.status) }}</td>
+          <td class="muted num">{{ d.created_at.strftime('%d %b %Y') }}</td>
+          <td class="row-go">{{ icon('arrow', 'ic-sm') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card card-pad empty">
+  <h3>No declarations yet</h3>
+  <p>File your first customs declaration before you arrive.</p>
+  <a href="{{ url_for('traveler.declare') }}" class="btn btn-primary">Start a declaration</a>
+</div>
+{% endif %}
+{% endblock %}

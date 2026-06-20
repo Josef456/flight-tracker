@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge, risk_badge, money, icon %}
+{% block nav_dash %}active{% endblock %}
+{% block appbar_title %}Declaration{% endblock %}
+{% block title %}{{ declaration.reference }} - Entebbe Flight Tracker{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Declaration</div>
+    <h1 class="num">{{ declaration.reference }}</h1>
+    <p>Filed {{ declaration.created_at.strftime('%d %B %Y at %H:%M') }}</p>
+  </div>
+  <div class="toolbar">
+    {{ risk_badge(declaration.risk_level) }}
+    {{ status_badge(declaration.status) }}
+  </div>
+</div>
+
+<div class="split">
+  <div class="stack">
+    <div class="card">
+      <div class="card-head"><h3>Declared goods</h3>
+        <span class="sub">Total {{ money(declaration.total_value, declaration.currency) }}</span></div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Item</th><th>Category</th><th>Qty</th><th>Unit value</th><th>Line total</th></tr></thead>
+          <tbody>
+            {% for item in declaration.items %}
+            <tr>
+              <td>{{ item.description }}</td>
+              <td><span class="chip">{{ item.category|capitalize }}</span></td>
+              <td class="num">{{ item.quantity }}</td>
+              <td>{{ money(item.unit_value, declaration.currency) }}</td>
+              <td>{{ money(item.line_total, declaration.currency) }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="muted">Nothing to declare.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% if declaration.inspector_note %}
+    <div class="card card-pad">
+      <h3>Inspector note</h3>
+      <p>{{ declaration.inspector_note }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="stack">
+    <div class="card card-pad">
+      <h3>Summary</h3>
+      <dl class="deflist">
+        <dt>Flight</dt><dd>{{ declaration.flight.flight_number }}</dd>
+        <dt>Route</dt><dd>{{ declaration.flight.origin }} to Entebbe</dd>
+        <dt>Airline</dt><dd>{{ declaration.flight.airline }}</dd>
+        <dt>Status</dt><dd>{{ status_badge(declaration.status) }}</dd>
+        <dt>Risk</dt><dd>{{ risk_badge(declaration.risk_level) }}</dd>
+        {% if declaration.reviewer %}
+        <dt>Reviewed by</dt><dd>{{ declaration.reviewer.full_name }}</dd>
+        <dt>Reviewed</dt><dd>{{ declaration.reviewed_at.strftime('%d %b %Y') }}</dd>
+        {% endif %}
+      </dl>
+    </div>
+    {% if declaration.traveler_note %}
+    <div class="card card-pad">
+      <h3>Your note</h3>
+      <p class="muted">{{ declaration.traveler_note }}</p>
+    </div>
+    {% endif %}
+    <a href="{{ url_for('traveler.dashboard') }}" class="btn btn-ghost btn-block">{{ icon('arrow', 'ic-sm') }} Back to my declarations</a>
+  </div>
+</div>
+{% endblock %}
