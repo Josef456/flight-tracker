@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} - Entebbe Flight Tracker{% endblock %}
+{% block content %}
+<div class="empty">
+  <h1 class="num" style="font-size:3rem;color:var(--navy);">{{ code }}</h1>
+  <h3>{{ message }}</h3>
+  <p><a class="btn btn-ghost" href="{{ url_for('auth.index') }}">Back to start</a></p>
+</div>
+{% endblock %}

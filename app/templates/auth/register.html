@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block body_class %}auth{% endblock %}
+{% block main_class %}auth-wrap{% endblock %}
+{% block title %}Create account - Entebbe Flight Tracker{% endblock %}
+
+{% block content_anon %}
+<aside class="auth-aside">
+  <img src="{{ url_for('static', filename='img/pattern.svg') }}" alt="" class="aside-pattern">
+  <div class="aside-top">
+    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" class="brand-mark">
+  </div>
+  <div class="aside-bottom">
+    <h2>Declare ahead. Clear faster.</h2>
+    <p>Register as a traveler to file your customs declaration before you reach the arrivals hall.</p>
+    <ul class="aside-points">
+      <li>Save your passport details once</li>
+      <li>Track clearance status in real time</li>
+      <li>Keep a record of every declaration</li>
+    </ul>
+  </div>
+</aside>
+
+<div class="auth-main">
+  <div class="auth-card card card-pad">
+    <h1>Create traveler account</h1>
+    <p class="lede">It takes less than a minute.</p>
+    <form method="post" novalidate>
+      {{ form.csrf_token }}
+      {{ field(form.full_name, 'Aisha Nakimera') }}
+      {{ field(form.email, 'you@example.com') }}
+      <div class="form-row">
+        {{ field(form.passport_no, 'B0451123') }}
+        {{ field(form.nationality, 'Ugandan') }}
+      </div>
+      {{ field(form.password) }}
+      {{ field(form.confirm) }}
+      <button type="submit" class="btn btn-primary btn-block">Create account</button>
+    </form>
+    <p class="auth-switch">Already registered? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+  </div>
+</div>
+{% endblock %}
