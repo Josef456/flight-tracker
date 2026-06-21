@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge, risk_badge, money, field, icon %}
+{% block nav_queue %}active{% endblock %}
+{% block appbar_title %}Review declaration{% endblock %}
+{% block title %}Review {{ declaration.reference }} - Entebbe Flight Tracker{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Reviewing declaration</div>
+    <h1 class="num">{{ declaration.reference }}</h1>
+    <p>{{ declaration.traveler.full_name }}, {{ declaration.flight.flight_number }} from {{ declaration.flight.origin }}</p>
+  </div>
+  <div class="toolbar">{{ risk_badge(declaration.risk_level) }}{{ status_badge(declaration.status) }}</div>
+</div>
+
+<div class="split">
+  <div class="stack">
+    <div class="card">
+      <div class="card-head"><h3>Declared goods</h3>
+        <span class="sub">Total {{ money(declaration.total_value, declaration.currency) }}</span></div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Item</th><th>Category</th><th>Qty</th><th>Unit value</th><th>Line total</th></tr></thead>
+          <tbody>
+            {% for item in declaration.items %}
+            <tr>
+              <td>{{ item.description }}</td>
+              <td><span class="chip">{{ item.category|capitalize }}</span></td>
+              <td class="num">{{ item.quantity }}</td>
+              <td>{{ money(item.unit_value, declaration.currency) }}</td>
+              <td>{{ money(item.line_total, declaration.currency) }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="muted">Traveler reported nothing to declare.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Audit trail</h3></div>
+      <div class="card-pad">
+        <ul class="timeline">
+          {% for entry in declaration.audit_entries %}
+          <li>
+            <span class="dot"></span>
+            <span>
+              <strong>{{ entry.action|capitalize }}</strong> by {{ entry.actor.full_name }}
+              {% if entry.detail %}<span class="muted"> ({{ entry.detail }})</span>{% endif %}
+              <div class="when">{{ entry.created_at.strftime('%d %b %Y, %H:%M') }}</div>
+            </span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="card card-pad">
+      <h3>Inspector decision</h3>
+      <form method="post" novalidate>
+        {{ form.csrf_token }}
+        {{ field(form.decision) }}
+        {{ field(form.risk_level) }}
+        {{ field(form.inspector_note, 'Record what you observed') }}
+        <button type="submit" class="btn btn-primary btn-block">Save decision</button>
+      </form>
+    </div>
+    <div class="card card-pad">
+      <h3>Traveler</h3>
+      <dl class="deflist">
+        <dt>Name</dt><dd>{{ declaration.traveler.full_name }}</dd>
+        <dt>Passport</dt><dd class="num">{{ declaration.traveler.passport_no or 'Not given' }}</dd>
+        <dt>Nationality</dt><dd>{{ declaration.traveler.nationality or 'Not given' }}</dd>
+        <dt>Currency</dt><dd>{{ declaration.currency }}</dd>
+      </dl>
+      {% if declaration.traveler_note %}<p class="muted" style="margin-top:.8rem">Note: {{ declaration.traveler_note }}</p>{% endif %}
+    </div>
+    <a href="{{ url_for('inspector.queue') }}" class="btn btn-ghost btn-block">{{ icon('arrow', 'ic-sm') }} Back to queue</a>
+  </div>
+</div>
+{% endblock %}

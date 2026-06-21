@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge, risk_badge, money, icon %}
+{% block nav_queue %}active{% endblock %}
+{% block nav_admin_queue %}active{% endblock %}
+{% block appbar_title %}Audit queue{% endblock %}
+{% block title %}Audit queue - Entebbe Flight Tracker{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">{{ icon('file', 'ic-sm') }} Inspector</div>
+    <h1>Audit queue</h1>
+    <p>Filter arriving declarations and clear, flag, or mark them inspected.</p>
+  </div>
+</div>
+
+<div class="card card-pad" style="margin-bottom:1.25rem">
+  <form method="get" class="filterbar">
+    <div class="field">
+      <label for="search">Search</label>
+      <input type="text" id="search" name="search" value="{{ filters.search or '' }}" placeholder="Reference or traveler">
+    </div>
+    <div class="field">
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        <option value="">All statuses</option>
+        {% for s in statuses %}<option value="{{ s }}" {{ 'selected' if filters.status == s }}>{{ s|capitalize }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="risk">Risk</label>
+      <select id="risk" name="risk">
+        <option value="">All risk</option>
+        {% for r in risk_levels %}<option value="{{ r }}" {{ 'selected' if filters.risk == r }}>{{ r|capitalize }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="flight_id">Flight</label>
+      <select id="flight_id" name="flight_id">
+        <option value="">All flights</option>
+        {% for f in flights %}<option value="{{ f.id }}" {{ 'selected' if filters.flight_id == f.id }}>{{ f.flight_number }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="date_from">From</label>
+      <input type="date" id="date_from" name="date_from" value="{{ raw_args.get('date_from','') }}">
+    </div>
+    <div class="toolbar">
+      <button type="submit" class="btn btn-primary btn-sm">{{ icon('search', 'ic-sm') }} Apply</button>
+      <a href="{{ url_for('inspector.queue') }}" class="btn btn-ghost btn-sm">Reset</a>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <h3>{{ declarations|length }} declaration{{ '' if declarations|length == 1 else 's' }}</h3>
+    <span class="sub">Newest first, capped at 200</span>
+  </div>
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr><th>Reference</th><th>Traveler</th><th>Flight</th><th>Value</th><th>Risk</th><th>Status</th><th>Filed</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for d in declarations %}
+        <tr class="clickable" data-href="{{ url_for('inspector.review', reference=d.reference) }}">
+          <td><a class="ref" href="{{ url_for('inspector.review', reference=d.reference) }}">{{ d.reference }}</a></td>
+          <td>{{ d.traveler.full_name }}</td>
+          <td>{{ d.flight.flight_number }} <span class="muted">{{ d.flight.origin }}</span></td>
+          <td>{{ money(d.total_value, d.currency) }}</td>
+          <td>{{ risk_badge(d.risk_level) }}</td>
+          <td>{{ status_badge(d.status) }}</td>
+          <td class="muted num">{{ d.created_at.strftime('%d %b') }}</td>
+          <td><a class="btn btn-ghost btn-sm" href="{{ url_for('inspector.review', reference=d.reference) }}">Review</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="empty">No declarations match these filters.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
