@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge, icon %}
+{% block nav_admin %}active{% endblock %}
+{% block appbar_title %}Dashboard{% endblock %}
+{% block title %}Dashboard - Entebbe Flight Tracker{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">{{ icon('shield', 'ic-sm') }} Supervisor</div>
+    <h1>Clearance dashboard</h1>
+    <p>Live view of declaration volume, risk, and inspector throughput.</p>
+  </div>
+  <a href="{{ url_for('inspector.arrivals') }}" class="btn btn-ghost">{{ icon('map') }} Arrivals map</a>
+</div>
+
+<div class="grid grid-4" style="margin-bottom:1.25rem">
+  <div class="card kpi">
+    <div class="kpi-ic">{{ icon('file') }}</div>
+    <div>
+      <div class="label">Total declarations</div>
+      <div class="value num">{{ kpis.total }}</div>
+      <div class="foot">Across all flights</div>
+    </div>
+  </div>
+  <div class="card kpi">
+    <div class="kpi-ic a">{{ icon('clock') }}</div>
+    <div>
+      <div class="label">Awaiting review</div>
+      <div class="value num">{{ kpis.pending }}</div>
+      <div class="foot">In the inspector queue</div>
+    </div>
+  </div>
+  <div class="card kpi">
+    <div class="kpi-ic b">{{ icon('flag') }}</div>
+    <div>
+      <div class="label">Flagged rate</div>
+      <div class="value num">{{ kpis.flagged_rate }}%</div>
+      <div class="foot">{{ kpis.flagged }} declaration(s) flagged</div>
+    </div>
+  </div>
+  <div class="card kpi">
+    <div class="kpi-ic g">{{ icon('coins') }}</div>
+    <div>
+      <div class="label">Declared value</div>
+      <div class="value num">{{ '{:,.0f}'.format(kpis.declared_value) }}</div>
+      <div class="foot">Mixed currency, nominal total</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom:1.25rem">
+  <div class="card span-2">
+    <div class="card-head"><h3>Declarations filed, last 14 days</h3><span class="sub">Daily volume</span></div>
+    <div class="card-pad"><div class="chart-box tall"><canvas id="trendChart"></canvas></div></div>
+  </div>
+</div>
+
+<div class="grid grid-3" style="margin-bottom:1.25rem">
+  <div class="card">
+    <div class="card-head"><h3>By status</h3></div>
+    <div class="card-pad"><div class="chart-box"><canvas id="statusChart"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>By risk band</h3></div>
+    <div class="card-pad"><div class="chart-box"><canvas id="riskChart"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Busiest flights</h3></div>
+    <div class="card-pad"><div class="chart-box"><canvas id="flightChart"></canvas></div></div>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-head"><h3>Declared value by category</h3><span class="sub">Inspection priority</span></div>
+    <div class="card-pad"><div class="chart-box"><canvas id="categoryChart"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Recent activity</h3></div>
+    <div class="card-pad">
+      <ul class="timeline">
+        {% for entry in audit %}
+        <li>
+          <span class="dot"></span>
+          <span>
+            <strong>{{ entry.action|capitalize }}</strong>
+            <a href="{{ url_for('inspector.review', reference=entry.declaration.reference) }}">{{ entry.declaration.reference }}</a>
+            by {{ entry.actor.full_name }}
+            <div class="when">{{ entry.created_at.strftime('%d %b %Y, %H:%M') }}</div>
+          </span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

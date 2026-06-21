@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field, icon %}
+{% block nav_flights %}active{% endblock %}
+{% block appbar_title %}Flights{% endblock %}
+{% block title %}Flights - Entebbe Flight Tracker{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">{{ icon('plane', 'ic-sm') }} Supervisor</div>
+    <h1>Flight roster</h1>
+    <p>Arriving flights that travelers can attach declarations to.</p>
+  </div>
+</div>
+
+<div class="split">
+  <div class="card">
+    <div class="card-head"><h3>{{ flights|length }} flights</h3></div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Flight</th><th>Airline</th><th>Origin</th><th>Scheduled arrival</th><th>Declarations</th></tr></thead>
+        <tbody>
+          {% for f in flights %}
+          <tr>
+            <td><strong class="num">{{ f.flight_number }}</strong></td>
+            <td>{{ f.airline }}</td>
+            <td>{{ f.origin }} {% if f.origin_code %}<span class="muted">({{ f.origin_code }})</span>{% endif %}</td>
+            <td class="num muted">{{ f.scheduled_arrival.strftime('%d %b %Y, %H:%M') }}</td>
+            <td class="num">{{ f.declarations|length }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="muted">No flights yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card card-pad">
+    <h3>Add flight</h3>
+    <form method="post" novalidate>
+      {{ form.csrf_token }}
+      {{ field(form.flight_number, 'KQ412') }}
+      {{ field(form.airline, 'Kenya Airways') }}
+      <div class="form-row">
+        {{ field(form.origin, 'Nairobi') }}
+        {{ field(form.origin_code, 'NBO') }}
+      </div>
+      {{ field(form.scheduled_arrival, '2026-06-26 14:30') }}
+      <button type="submit" class="btn btn-primary btn-block">Add to roster</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
