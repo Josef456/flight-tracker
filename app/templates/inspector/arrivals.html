@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+{% block nav_arrivals %}active{% endblock %}
+{% block nav_arrivals2 %}active{% endblock %}
+{% block appbar_title %}Arrivals map{% endblock %}
+{% block title %}Arrivals map - Entebbe Flight Tracker{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">{{ icon('map', 'ic-sm') }} Operations</div>
+    <h1>Arrivals map</h1>
+    <p>Inbound routes to Entebbe, sized by declaration volume. Routes with a flagged declaration are marked in red.</p>
+  </div>
+</div>
+
+<div class="card card-pad">
+  <div class="map-box js-map" id="arrivalsMap"></div>
+  <div class="map-legend">
+    <span><span class="dotk" style="background:#16344e"></span> Entebbe and route weight by volume</span>
+    <span><span class="dotk" style="background:#b6883b"></span> Origin city</span>
+    <span><span class="dotk" style="background:#bf4133"></span> Origin with flagged declarations</span>
+  </div>
+</div>
+
+<div class="card" style="margin-top:1.25rem">
+  <div class="card-head"><h3>{{ icon('plane') }} Roster</h3><span class="sub">{{ flights|length }} flights</span></div>
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>Flight</th><th>Airline</th><th>Origin</th><th>Declarations</th></tr></thead>
+      <tbody>
+        {% for f in flights %}
+        <tr>
+          <td><strong class="num">{{ f.flight_number }}</strong></td>
+          <td>{{ f.airline }}</td>
+          <td>{{ f.origin }} {% if f.origin_code %}<span class="muted">({{ f.origin_code }})</span>{% endif %}</td>
+          <td class="num">{{ f.declarations|length }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+{% endblock %}
