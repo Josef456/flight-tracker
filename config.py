@@ -23,6 +23,13 @@ class Config:
     SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # Recycle dropped connections (the free cloud database closes idle ones while
+    # the web service is asleep) and fail fast instead of hanging if the database
+    # is unreachable at startup.
+    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
+    if _db_url.startswith("postgresql"):
+        SQLALCHEMY_ENGINE_OPTIONS["connect_args"] = {"connect_timeout": 10}
+
     # Session hardening.
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"

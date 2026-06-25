@@ -6,9 +6,10 @@ services:
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    # Prepare the database (create tables, seed once if empty) before serving.
-    # Done here rather than via preDeployCommand because that is a paid feature.
-    startCommand: python bootstrap.py && gunicorn "app:create_app()" --bind 0.0.0.0:$PORT
+    # wsgi.py prepares the database (create tables, seed once if empty) at import
+    # time. Gunicorn binds the port before importing it, so the seed never blocks
+    # the port from opening. preDeployCommand would be cleaner but is a paid feature.
+    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT
     healthCheckPath: /healthz
     envVars:
       - key: SECRET_KEY
