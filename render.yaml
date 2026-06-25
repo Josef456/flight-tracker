@@ -6,7 +6,9 @@ services:
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn "app:create_app()"
+    # Prepare the database (create tables, seed once if empty) before serving.
+    # Done here rather than via preDeployCommand because that is a paid feature.
+    startCommand: python bootstrap.py && gunicorn "app:create_app()"
     healthCheckPath: /healthz
     envVars:
       - key: SECRET_KEY
