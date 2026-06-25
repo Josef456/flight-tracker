@@ -11,7 +11,7 @@ when the database is empty, so ordinary restarts keep existing data.
 """
 from app import create_app, db
 from app.models import User
-import seed
+from seed import populate
 
 app = create_app()
 
@@ -19,7 +19,8 @@ with app.app_context():
     db.create_all()
     if User.query.count() == 0:
         print("Empty database detected, loading demo data...", flush=True)
-        seed.build()
-        print("Seed complete.", flush=True)
+        # populate() seeds within this same session/transaction. It must not drop
+        # tables here: a DROP would deadlock against the lock the count above holds.
+        populate()
     else:
         print("Database already populated, skipping seed.", flush=True)
